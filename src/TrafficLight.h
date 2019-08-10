@@ -24,20 +24,31 @@ private:
     
 };
 
+enum TrafficLightPhase {RED, GREEN};
+
 // FP.1 : Define a class „TrafficLight“ which is a child class of TrafficObject. 
 // The class shall have the public methods „void waitForGreen()“ and „void simulate()“ 
 // as well as „TrafficLightPhase getCurrentPhase()“, where TrafficLightPhase is an enum that 
 // can be either „red“ or „green“. Also, add the private method „void cycleThroughPhases()“. 
 // Furthermore, there shall be the private member _currentPhase which can take „red“ or „green“ as its value. 
 
-class TrafficLight
+class TrafficLight : public TrafficObject
 {
 public:
-    // constructor / desctructor
 
+    // constructor / desctructor
+    TrafficLight();
+    ~TrafficLight();
+    
     // getters / setters
 
     // typical behaviour methods
+    void waitForGreen();
+
+    void simulate();
+
+    TrafficLightPhase getCurrentPhase();
+
 
 private:
     // typical behaviour methods
@@ -48,6 +59,8 @@ private:
 
     std::condition_variable _condition;
     std::mutex _mutex;
+    TrafficLightPhase _currentPhase;
+    void cycleThroughPhases();
 };
 
 #endif
