@@ -54,6 +54,11 @@ void TrafficLight::waitForGreen()
     // FP.5b : add the implementation of the method waitForGreen, in which an infinite while-loop 
     // runs and repeatedly calls the receive function on the message queue. 
     // Once it receives TrafficLightPhase::green, the method returns.
+    while(1) {
+        if (this->_msg_queue.receive() == TrafficLightPhase::GREEN) {
+            break;
+        }
+    }
 }
 
 TrafficLightPhase TrafficLight::getCurrentPhase()
@@ -65,8 +70,8 @@ void TrafficLight::simulate()
 {
     // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „
     //simulate“ is called. To do this, use the thread queue in the base class. 
-
-
+    std::thread simThread = std::thread( cycleThroughPhases() );
+    this->threads.push_back(std::move(simThread));
 }
 
 // virtual function which is executed in a thread

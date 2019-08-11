@@ -27,7 +27,7 @@ public:
 private:
     std::mutex _mutex;
     std::condition_variable _cond_var;
-    stdd::vector<T> _messages;
+    std::vector<T> _messages;
 
 };
 
@@ -73,6 +73,7 @@ private:
     std::mutex _mutex;
     TrafficLightPhase _currentPhase;
     void cycleThroughPhases();
+    MessageQueue<TrafficLightPhase> _msg_queue;
 };
 
 #endif
