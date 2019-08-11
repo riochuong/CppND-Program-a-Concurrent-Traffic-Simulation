@@ -4,22 +4,42 @@
 
 /* Implementation of class "MessageQueue" */
 
-/* 
+ 
 template <typename T>
 T MessageQueue<T>::receive()
 {
     // FP.5a : The method receive should use std::unique_lock<std::mutex> and _condition.wait() 
     // to wait for and receive new messages and pull them from the queue using move semantics. 
     // The received object should then be returned by the receive function. 
-}
+
+    std::unique_lock<std::mutex> uLock (_mutex);
+    this->_cond_var.wait(uLock, [this] {return ! this->messages.empty();});
+    // move ownership of this project also so it wont be deleted
+    T msg = std::move(this->_messages.back());
+    this->_messages.pop_back();
+
+    // return value optimization in C++
+    return msg;
+}   
 
 template <typename T>
 void MessageQueue<T>::send(T &&msg)
 {
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
+
+    // try to get the unique lock to check the queue cond.
+    std::unique_lock<std::mutex> uLock (_mutex);
+    
+    // now message queue is not empty anymore
+    std::cout << "Adding message to queue" << std::endl;
+    this->_messages.push_back(std::move(msg));
+    // notify client waiting on new coming message
+    this->_cond_var.notify_one();
+
+
 }
-*/
+
 
 /* Implementation of class "TrafficLight" */
 
@@ -59,12 +79,12 @@ void TrafficLight::cycleThroughPhases()
     auto start = std::chrono::high_resolution_clock::now();
     auto now = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed;
-    auto cycle_time = rand() % 3 + 4;
+    auto cycle_time = std::chrono::seconds{ rand() % 3 + 4 };
     while(true) {
         elapsed = now - start;
         if (elapsed >= cycle_time) {
             // TODO: toggle state and send message to queue here 
-            cycle_time = rand() % 3 + 4;
+            auto cycle_time = std::chrono::seconds{ rand() % 3 + 4 };
             start = std::chrono::high_resolution_clock::now();
             // change phase 
             this->_currentPhase = TrafficLightPhase::RED == this->_currentPhase ? TrafficLightPhase::GREEN : TrafficLightPhase::RED;

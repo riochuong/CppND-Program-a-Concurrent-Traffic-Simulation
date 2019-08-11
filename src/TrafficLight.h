@@ -19,9 +19,16 @@ template <class T>
 class MessageQueue
 {
 public:
+    
+    T receive();
+    
+    void send (T &&msg); 
 
 private:
-    
+    std::mutex _mutex;
+    std::condition_variable _cond_var;
+    stdd::vector<T> _messages;
+
 };
 
 enum TrafficLightPhase {RED, GREEN};
@@ -41,13 +48,18 @@ public:
     ~TrafficLight();
     
     // getters / setters
+    TrafficLightPhase setCurrentPhase(TrafficLightPhase phase) {
+        this->_currentPhase = phase;
+    }
 
+    TrafficLightPhase getCurrentPhase() { return this->_currentPhase; }
+    
     // typical behaviour methods
     void waitForGreen();
 
     void simulate();
 
-    TrafficLightPhase getCurrentPhase();
+
 
 
 private:
