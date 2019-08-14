@@ -87,7 +87,9 @@ void TrafficLight::cycleThroughPhases()
             auto cycle_time = std::chrono::seconds{ rand() % 3 + 4 };
             start = std::chrono::high_resolution_clock::now();
             // change phase 
-            this->_currentPhase = TrafficLightPhase::RED == this->_currentPhase ? TrafficLightPhase::GREEN : TrafficLightPhase::RED;
+            TrafficLightPhase new_phase = TrafficLightPhase::RED == this->_currentPhase ? TrafficLightPhase::GREEN : TrafficLightPhase::RED;
+            this->_currentPhase = new_phase;
+            this->_msg_queue.send(std::move(new_phase));
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
         // always update now 
