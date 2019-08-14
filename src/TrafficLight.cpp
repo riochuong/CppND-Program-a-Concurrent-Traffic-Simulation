@@ -13,7 +13,7 @@ T MessageQueue<T>::receive()
     // The received object should then be returned by the receive function. 
 
     std::unique_lock<std::mutex> uLock (_mutex);
-    this->_cond_var.wait(uLock, [this] {return ! this->messages.empty();});
+    this->_cond_var.wait(uLock, [this] {return ! this->_messages.empty();});
     // move ownership of this project also so it wont be deleted
     T msg = std::move(this->_messages.back());
     this->_messages.pop_back();
@@ -61,16 +61,11 @@ void TrafficLight::waitForGreen()
     }
 }
 
-TrafficLightPhase TrafficLight::getCurrentPhase()
-{
-    return _currentPhase;
-}
-
 void TrafficLight::simulate()
 {
     // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „
     //simulate“ is called. To do this, use the thread queue in the base class. 
-    std::thread simThread = std::thread( cycleThroughPhases() );
+    std::thread simThread = std::thread(&TrafficLight::cycleThroughPhases, this);
     this->threads.push_back(std::move(simThread));
 }
 
@@ -94,10 +89,9 @@ void TrafficLight::cycleThroughPhases()
             // change phase 
             this->_currentPhase = TrafficLightPhase::RED == this->_currentPhase ? TrafficLightPhase::GREEN : TrafficLightPhase::RED;
         }
-        std::this_thread::sleep_for(1);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         // always update now 
         now = std::chrono::high_resolution_clock::now();
     }
 
 }
-

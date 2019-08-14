@@ -45,7 +45,6 @@ public:
 
     // constructor / desctructor
     TrafficLight();
-    ~TrafficLight();
     
     // getters / setters
     TrafficLightPhase setCurrentPhase(TrafficLightPhase phase) {
