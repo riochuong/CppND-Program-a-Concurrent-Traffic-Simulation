@@ -29,7 +29,7 @@ void MessageQueue<T>::send(T &&msg)
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
 
     // try to get the unique lock to check the queue cond.
-    std::unique_lock<std::mutex> uLock (_mutex);
+    std::lock_guard<std::mutex> lock_guard(_mutex);
     
     // now message queue is not empty anymore
     std::cout << "Adding message to queue" << std::endl;
@@ -56,7 +56,7 @@ void TrafficLight::waitForGreen()
     // Once it receives TrafficLightPhase::green, the method returns.
     while(1) {
         if (this->_msg_queue.receive() == TrafficLightPhase::GREEN) {
-            break;
+            return;
         }
     }
 }
@@ -79,12 +79,13 @@ void TrafficLight::cycleThroughPhases()
     auto start = std::chrono::high_resolution_clock::now();
     auto now = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed;
-    auto cycle_time = std::chrono::seconds{ rand() % 3 + 4 };
+    auto cycle_time = std::chrono::duration<float>(rand() % 2 + 4 + (static_cast<float> (rand())) / RAND_MAX);
     while(true) {
         elapsed = now - start;
         if (elapsed >= cycle_time) {
-            // TODO: toggle state and send message to queue here 
-            auto cycle_time = std::chrono::seconds{ rand() % 3 + 4 };
+            // use current time as random seed 
+            srand(time(0));
+            cycle_time = std::chrono::duration<float>(rand() % 2 + 4 + (static_cast<float> (rand())) / RAND_MAX);
             start = std::chrono::high_resolution_clock::now();
             // change phase 
             TrafficLightPhase new_phase = TrafficLightPhase::RED == this->_currentPhase ? TrafficLightPhase::GREEN : TrafficLightPhase::RED;
